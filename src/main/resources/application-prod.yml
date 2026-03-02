@@ -1,0 +1,58 @@
+# 生产环境配置
+server:
+  port: 8080
+
+spring:
+  # MySQL 数据库配置（生产环境）
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:alert_hub}?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+
+  # JPA 配置
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  # 生产环境禁用 H2 控制台
+  h2:
+    console:
+      enabled: false
+
+# 告警聚合配置
+alert:
+  aggregation:
+    group-wait: 30
+    max-count: 100
+    max-wait: 300
+    dedup-window: 300
+
+  sub-agent:
+    enabled: true
+    endpoints:
+      - ${SUB_AGENT_URL:http://localhost:8081/internal/analyze}
+    timeout: 30000
+
+  notification:
+    feishu:
+      enabled: true
+      webhook-url: ${FEISHU_WEBHOOK_URL:}
+
+  cors:
+    allowed-origins:
+      - ${ALLOWED_ORIGIN:https://your-domain.com}
+
+# 日志配置
+logging:
+  level:
+    root: INFO
+    com.alert_hub: INFO

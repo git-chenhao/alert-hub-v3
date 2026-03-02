@@ -1,0 +1,78 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: alert-hub-v3
+
+  # H2 数据库配置（开发环境）
+  datasource:
+    url: jdbc:h2:mem:alerthub;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  # JPA 配置
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+
+  # H2 控制台（仅开发环境）
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  # Jackson JSON 配置
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+    serialization:
+      write-dates-as-timestamps: false
+
+# 告警聚合配置
+alert:
+  aggregation:
+    # 等待多少秒后触发聚合
+    group-wait: 30
+    # 最大告警数触发聚合
+    max-count: 100
+    # 最大等待时间（秒）
+    max-wait: 300
+    # 去重窗口时间（秒）
+    dedup-window: 300
+
+  # Sub-Agent 配置
+  sub-agent:
+    enabled: true
+    endpoints:
+      - http://localhost:8081/internal/analyze
+    timeout: 30000
+
+  # 飞书通知配置
+  notification:
+    feishu:
+      enabled: false
+      webhook-url: ${FEISHU_WEBHOOK_URL:}
+
+  # CORS 配置
+  cors:
+    allowed-origins:
+      - http://localhost:3000
+      - http://localhost:8080
+
+# 日志配置
+logging:
+  level:
+    root: INFO
+    com.alert_hub: DEBUG
+    org.hibernate.SQL: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
